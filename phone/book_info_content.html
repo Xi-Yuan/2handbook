@@ -83,7 +83,7 @@
  
         }
         function AddGoods(data) {
-            arrData.push({"seller":"卖家 "+data.seller, "img":"", "price":"￥"+data.price});
+            arrData.push({"seller":"卖家 "+data.seller+" ("+ data.quality/10+"品) ", "img":"1.jpg", "price":"￥"+data.price});
             arrData.sort(down);
             //alert(arrData);
             var listData = [];

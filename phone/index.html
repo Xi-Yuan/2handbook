@@ -95,15 +95,17 @@
             //appcan.window.close(-1);
         })
         function openCon(idx) {
-            var arr = ["index_content.html","sell_content.html","login_content.html","info_content.html"]
-            
-            localStorage.setItem('login',1);
+            var arr = ["index_content.html","sell_content.html","info_content.html"]
+         
+            var login = localStorage.getItem('login');
+            if (idx == 2 && login != 1) {
+                appcan.openWinWithUrl('catalog', 'login_content.html', '0');
+                //return;
+                openCon(0);
+                return;
+            }
             for (var i = 0, l = $("#header")[0].children.length; i < l; i++) {
                 if (idx == i) {
-                    var login = localStorage.getItem('login');
-                    if (idx == 2 && login == 1) {
-                        idx++;
-                    }
                     $("#header")[0].children[i].className = "uh bc-text-head ub bc-head maxh";
                     if (!conArray[idx]) {
                         appcan.openPopoverByEle("content", arr[idx], 0, $('#header').offset().height, 0, 'content_' + idx);

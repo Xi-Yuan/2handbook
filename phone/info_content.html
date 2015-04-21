@@ -24,9 +24,25 @@
         <script src="js/appcan.tab.js"></script>
     </body>
     <script>
+        var www = ['http://whynothappy.sinaapp.com/goods_of_a_buyer','http://whynothappy.sinaapp.com/books_of_a_seller'];
+        var flag = 0;
+        var arrData = [];
         appcan.ready(function() {
             appcan.initBounce();
-            showGoods(0);
+            var request = appcan.require('request');
+            request.ajax({
+                type : 'POST',
+                url : 'http://whynothappy.sinaapp.com/goods_of_a_buyer',
+                data : {username : "seller1"},
+                contentType: 'application/json',
+                success:function(data){
+                    data = eval("(" + data + ")");
+                    show(data.books, 0);
+                },
+                error:function(){
+                    alert("fuck");
+                }
+            })
         })
         var tabview = appcan.tab({
             selector : "#tabview",
@@ -42,67 +58,73 @@
             }]
         });
         tabview.on("click", function(obj, index) {
-            showGoods(index);
+            var request = appcan.require('request');
+            request.ajax({
+                type : 'POST',
+                url : www[index],
+                data : {username : "seller1", seller : "seller1"},
+                contentType: 'application/json',
+                success:function(data){
+                    data = eval("(" + data + ")");
+                    show(data.books, index);
+                },
+                error:function(){
+                    alert("fuck");
+                }
+            })
         })
-        function showGoods(index) {
-            var arrData;
+        
+        
+        function show(data, index) {
+            
+            var len = data.length;
+            for(var i = 0; i < len; ++i)
+            {
+                var request = appcan.require('request');
+                request.ajax({
+                    type : 'POST',
+                    url : 'http://whynothappy.sinaapp.com/goodsinfo',
+                    data : {username : "seller1" , goods_id : data[i].goods_id},
+                    contentType: 'application/json',
+                    success:function(data){
+                        
+                        data = eval("(" + data + ")");
+                        AddGoods(data, index);
+                        //alert("fuck");
+                    },
+                    error:function(){
+                        alert("fuck");
+                    }
+                })
+            }
+            
+        }
+        function down(x, y) {
+            return (x.price > y.price) ? 1 : -1
+ 
+        }
+        function AddGoods(data, index) {
+            //alert(flag);
             if (index == 0) {
-                arrData = [ {
-                    "goods" : "info_content/css/myImg/gs1.png",
-                    "synopsis" : "情人节礼物怡吻手工松露巧...",
-                    "price" : "￥69",
-                    "price2" : "￥99",
-                    "popularity" : "18",
-                }];
+                if (flag == 1) arrData = [];
+                flag = 0;
+                arrData.push({"bookname":data.title, "img":data.pic_url, "price":"￥"+data.price});
+                arrData.sort(down);
             }
             else {
-            arrData = [{
-                "goods" : "info_content/css/myImg/gs1.png",
-                "synopsis" : "情人节礼物怡吻手工松露巧...",
-                "price" : "￥69",
-                "price2" : "￥99",
-                "popularity" : "18",
-
-            }, {
-                "goods" : "info_content/css/myImg/gs2.png",
-                "synopsis" : "香港OPPO女包2014新款包",
-                "price" : "￥69",
-                "price2" : "￥99",
-                "popularity" : "18",
-            }, {
-                "goods" : "info_content/css/myImg/gs3.png",
-                "synopsis" : "包邮零俊间厅柜 门厅玄关隔",
-                "price" : "￥69",
-                "price2" : "￥99",
-                "popularity" : "68",
-            }, {
-                "goods" : "info_content/css/myImg/gs4.png",
-                "synopsis" : "普耐尔S1学习机安卓系统7寸",
-                "price" : "￥629",
-                "price2" : "￥99",
-                "popularity" : "21",
-            }, {
-                "goods" : "info_content/css/myImg/gs5.png",
-                "synopsis" : "KINGBAND棒球服男 棒球衫",
-                "price" : "￥69",
-                "price2" : "￥99",
-                "popularity" : "233",
-            }, {
-                "goods" : "info_content/css/myImg/gs6.png",
-                "synopsis" : "奢谷SHEGU女士韩版上衣",
-                "price" : "￥69",
-                "price2" : "￥99",
-                "popularity" : "122",
-            }];}
-
+                if (flag == 0) arrData = [];
+                flag = 1;
+                arrData.push({"bookname":data.title, "img":data.pic_url, "price":"￥"+data.price});
+                arrData.sort(down);
+            }
             var listData = [];
             for (var i = 0,
                 len = arrData.length; i < len; i++) {
+                    
                 var list = {
-                    title : arrData[i].synopsis,
-                    icon : arrData[i].goods,
+                    title : arrData[i].bookname,
+                    icon : arrData[i].img,
                     describe : '<div class="ub ub-ae"><div class="sc-text-warn ">' + arrData[i].price + '</div></div>',
-                    note : '<div class="t-a2 ulev-1">人气<span class="umar-l">' + arrData[i].popularity + '</span></div>'
                 }
                 listData.push(list);
             }
@@ -117,9 +139,6 @@
                 align : 'left'
             });
             lv1.set(listData);
-            lv.on('click', function(ele, context, obj, subobj) {
-
-            })
         }
     </script>
 </html>
