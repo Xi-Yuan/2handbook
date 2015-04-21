@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="css/ui-base.css">
+        <link rel="stylesheet" href="css/ui-box.css">
+        <link rel="stylesheet" href="css/ui-color.css">
+        <link rel="stylesheet" href="css/appcan.icon.css">
+        <link rel="stylesheet" href="css/appcan.control.css">
+        <link rel="stylesheet" href="book_info_content/css/main.css">
+        <link rel="stylesheet" href="css/fonts/font-awesome.min.css">
+    </head>
+    <body class="um-vp bc-bg" ontouchstart>
+        <div class="ub ub-ac uinn-de1">
+            <div class="umh-list8 umw-list6"> <img src="" id="bookimg" height="130em" width="90em"> </div>
+            <div class="ub ub-ver uinn">
+                <div class="ulev-app2 t-bla " id="bookname">
+                </div>
+                <div class="ulev-4 t-gra-book uinn-details" id="bookauthor">
+                </div>
+                <div class="ulev-4 t-gra-book uinn-details" id="bookpublisher">
+                </div>
+                <div class="ulev-4 t-gra-book uinn-details" id="bookprice">
+                </div>
+            </div>
+        </div>
+        <div id="listview" class="umar-a sc-bg">
+        </div>
+
+    </body>
+    <script src="js/appcan.js"></script>
+    <script src="js/appcan.control.js"></script>
+    <script src="js/appcan.listview.js"></script>
+    </body>
+    <script>
+        appcan.ready(function() {
+            var tid = localStorage.getItem('isbn');
+            var request = appcan.require('request');
+            request.ajax({
+                type : 'POST',
+                url : 'http://whynothappy.sinaapp.com/bookinfo',
+                data : {username : "123" , isbn : tid},
+                contentType: 'application/json',
+                success:function(data){
+                    //alert(data);
+                    show(eval("(" + data + ")"));
+                },
+                error:function(){
+                    alert("fuck");
+                }
+            })
+            
+            request.ajax({
+                type : 'POST',
+                url : 'http://whynothappy.sinaapp.com/sellers_of_a_book',
+                data : {username : "123" , isbn : tid},
+                contentType: 'application/json',
+                success:function(data){
+                    //alert(data);
+                    data = eval("(" + data + ")");
+                    data.isbn = tid;
+                    showGoods(data);
+                },
+                error:function(){
+                    alert("fuck");
+                }
+            })
+            appcan.initBounce();
+            showGoods();
+        });
+        function show(data) {
+            $('#bookimg')[0].src = data.pic_url;
+            $('#bookname')[0].innerHTML = data.title;
+            $('#bookauthor')[0].innerHTML = "作者："+data.author;
+            $('#bookpublisher')[0].innerHTML = "出版社："+data.publisher;
+            $('#bookprice')[0].innerHTML = "原价：￥"+data.price;
+        }
+        var arrData = [];
+        function down(x, y) {
+            return (x.price > y.price) ? 1 : -1
+ 
+        }
+        function AddGoods(data) {
+            arrData.push({"seller":"卖家 "+data.seller, "img":"", "price":"￥"+data.price});
+            arrData.sort(down);
+            //alert(arrData);
+            var listData = [];
+            for (var i = 0,
+                len = arrData.length; i < len; i++) {
+                var list = {
+                    title : arrData[i].seller,
+                    icon : arrData[i].img,
+                    describe : '<div class="sc-text-warn ">' + arrData[i].price + '</div>' + '<div class="ub ub-pe bc-btn bc-text-head uinn-c3 c-blu2 c-m1 t-wh uts"> 我要买</div>'
+                }
+                listData.push(list);
+            }
+            var lv1 = appcan.listview({
+                selector : "#listview",
+                type : "thickLine",
+                hasIcon : true,
+                hasAngle : false,
+                hasSubTitle : false,
+                multiLine : 1,
+                hasCheckbox : false,
+                align : 'left'
+            });
+            lv1.set(listData);
+        }
+        function showGoods(data) {
+            
+            var len = data.sellers.length;
+            for(var i = 0; i < len; ++i)
+            {
+                var request = appcan.require('request');
+                request.ajax({
+                    type : 'POST',
+                    url : 'http://whynothappy.sinaapp.com/goodsinfo',
+                    data : {username : "123" , isbn : data.isbn, seller : data.sellers[i].seller},
+                    contentType: 'application/json',
+                    success:function(data){
+                        //alert(data);
+                        data = eval("(" + data + ")");
+                        AddGoods(data);
+                        //alert("fuck");
+                    },
+                    error:function(){
+                        alert("fuck");
+                    }
+                })
+            }
+            
+        }
+ </script>
+</html>

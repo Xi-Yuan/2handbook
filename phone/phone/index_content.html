@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="css/ui-base.css">
+        <link rel="stylesheet" href="css/ui-box.css">
+        <link rel="stylesheet" href="css/ui-color.css">
+        <link rel="stylesheet" href="index_content/css/main.css">
+    </head>
+    <body class="um-vp bc-bg" ontouchstart>
+        <div class="ub ub-ver uinn-b1" id="bookList">
+
+        </div>
+    </body>
+    <script src="js/appcan.js"></script>
+    <script src="js/appcan.control.js"></script>
+    </body>
+    <script>
+        appcan.ready(function() {
+            var request = appcan.require('request');
+            var arr = [];
+            request.ajax({
+                type : 'POST',
+                url : 'http://whynothappy.sinaapp.com/homepage',
+                data : {username : "123" , start_book_no : "1", end_book_no : "10"},
+                contentType: 'application/json',
+                success:function(data){
+                    //alert(data);
+                    bookList(eval("(" + data + ")"));
+                },
+                error:function(){
+                    alert("fuck");
+                }
+            })
+        });
+        var arrBook = [];
+        function Add(data) {
+            arrBook.push({"isbn":data.isbn, "bookImg":data.pic_url, "bookName":data.title});
+            //alert(arrBook);
+            var tmpl = '${cb:begin}' + 
+            '<div class="ub ub-ver uw-rli" id="${isbn}" onmousedown="appcan.touch(\'\')" ontouchstart="appcan.touch(\'\')" onclick="read(event);">' + 
+            '   <div  style="background-image:url(${bookImg});" class="ub-img umh-list8 umw-list6  umar-ar6">' + 
+            '  </div>' + 
+            ' <div class="t-gra-4b tx-c ulev-4 uof uinn-r1 umar-ar6">${bookName}</div>' + 
+            '</div>${cb:end}'
+            var s = appcan.tempRenderList(tmpl, arrBook, appcan.getObjLength(arrBook), tmpleCb);
+
+            
+            $('#bookList')[0].innerHTML = s;
+        }
+        function bookList(data) {
+            var request = appcan.require('request');
+            for(var i = 0; i < 10; ++i)
+            {
+                request.ajax({
+                    type : 'POST',
+                    url : 'http://whynothappy.sinaapp.com/bookinfo',
+                    data : {username : "123" , isbn : data.books[i].isbn},
+                    contentType: 'application/json',
+                    success:function(data){
+                        Add(eval("(" + data + ")"));
+                    },
+                    error:function(){
+                        alert("fuck");
+                    }
+                })
+            }
+        }
+
+        var i = 0;
+        function tmpleCb(a, b) {
+            switch (b[1]) {
+            case 'begin':
+                i++;
+                if (i % 3 == 1) {
+                    return '<div class="ub ub-at-list ub-f1 umar-at1">'
+                }
+                return '';
+            case 'end':
+
+                if (i % 3 == 0) {
+                    return '</div>'
+                }
+                return '';
+            }
+        }
+
+        function read(e) {
+            if (appcan.detect.os.phone && e.type == 'click')
+                return;
+            //alert(e.currentTarget.id);
+            localStorage.setItem('isbn',e.currentTarget.id);
+            appcan.openWinWithUrl('catalog', 'book_info.html');
+        }
+    </script>
+</html>

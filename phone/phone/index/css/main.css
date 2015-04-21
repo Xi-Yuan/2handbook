@@ -1,0 +1,27 @@
+.ressearch{
+	background-image:url('myImg/search.png');
+}
+.ressaomiao{
+	background-image:url('myImg/saomiao.png');
+}
+.umwh{
+	min-height:1em;
+	min-width:1em;
+}
+
+.uwh-abn{
+	width:3.5625em;
+	height:1.75em;
+}
+.appcanBtn{
+	background-image:url('myImg/appcanBtn.png');
+}
+.umar-l-ele{
+	margin-left:0.8em;
+}
+.uinn-hf18 {
+	padding:0.3em;
+}
+.umw-hf18{
+	width:1.05em;
+}
